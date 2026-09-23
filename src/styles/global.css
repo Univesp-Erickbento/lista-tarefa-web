@@ -1,0 +1,128 @@
+:root {
+  --bg: #ffffff;
+  --surface-1: #f5f4f0;
+  --surface-2: #ffffff;
+  --border: #e5e3dc;
+  --border-strong: #d3d1c7;
+  --text-primary: #1a1a18;
+  --text-secondary: #5f5e5a;
+  --text-muted: #888780;
+
+  --bg-accent: #e6f1fb;
+  --text-accent: #0c447c;
+  --bg-success: #eaf3de;
+  --text-success: #27500a;
+  --bg-danger: #fcebeb;
+  --text-danger: #791f1f;
+  --bg-amber: #faeeda;
+  --text-warning: #633806;
+  --bg-pro: #eeedfe;
+  --text-pro: #3c3489;
+
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+h1, h2, h3 {
+  margin: 0 0 4px;
+  font-weight: 500;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--text-primary);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 0.5px solid var(--border-strong);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.card {
+  background: var(--surface-1);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.row-card {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius);
+  font-weight: 500;
+  display: inline-block;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.field {
+  margin-bottom: 16px;
+}

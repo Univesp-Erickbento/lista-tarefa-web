@@ -1,0 +1,44 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Login } from "./pages/Login";
+import { Dashboard } from "./pages/Dashboard";
+import { Catalog } from "./pages/Catalog";
+import { FamilyMemberForm } from "./pages/FamilyMemberForm";
+
+function RotaProtegida({ children }: { children: React.ReactNode }) {
+  const autenticado = Boolean(localStorage.getItem("token"));
+  return autenticado ? <>{children}</> : <Navigate to="/login" replace />;
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <RotaProtegida>
+              <Dashboard />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/catalogo"
+          element={
+            <RotaProtegida>
+              <Catalog />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/familia/novo"
+          element={
+            <RotaProtegida>
+              <FamilyMemberForm />
+            </RotaProtegida>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+}
