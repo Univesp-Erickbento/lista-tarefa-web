@@ -1,6 +1,17 @@
 import { api } from "./client";
 import type { Task, TaskTemplate, TemplateUserStats, RankingEntry, Avaliacao, User } from "../types";
 
+
+export async function solicitarLinkDeSenha(email: string): Promise<{ mensagem: string }> {
+  const { data } = await api.post("/auth/esqueci-senha", { email });
+  return data;
+}
+
+export async function redefinirSenha(token: string, novaSenha: string): Promise<{ mensagem: string }> {
+  const { data } = await api.post("/auth/redefinir-senha", { token, novaSenha });
+  return data;
+}
+
 // ---- Autenticação ----
 export async function login(email: string, senha: string): Promise<{ token: string; user: User }> {
   const { data } = await api.post("/auth/login", { email, senha });
@@ -89,5 +100,14 @@ export async function listarGrausParentesco(): Promise<
   { id: number; nome: string; categoria: string }[]
 > {
   const { data } = await api.get("/graus-parentesco");
+  return data;
+}
+
+export async function cadastrar(
+  nome: string,
+  email: string,
+  senha: string
+): Promise<{ token: string; user: any }> {
+  const { data } = await api.post("/auth/cadastro", { nome, email, senha });
   return data;
 }

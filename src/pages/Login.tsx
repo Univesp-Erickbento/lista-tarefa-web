@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api/tarefas";
 
 export function Login() {
@@ -37,6 +37,18 @@ export function Login() {
           Entrar
         </button>
       </form>
+
+      <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 6, textAlign: "center" }}>
+        <Link to="/cadastro" style={{ fontSize: 13, fontWeight: 500 }}>
+          Ainda não tem conta? Criar conta
+        </Link>
+        <Link to="/esqueci-senha" style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+          Esqueceu a senha?
+        </Link>
+        <Link to="/esqueci-senha" style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+          Foi convidado por alguém da família? Defina sua senha aqui
+        </Link>
+      </div>
     </div>
   );
 }
