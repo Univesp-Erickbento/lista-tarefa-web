@@ -1,3 +1,5 @@
+import { api } from "./api/client";
+
 // ============================================================================
 // ADICIONAR esta função em src/api/tarefas.ts (junto das outras de
 // autenticação, perto de `login`). Usa o mesmo `api` (axios) já importado

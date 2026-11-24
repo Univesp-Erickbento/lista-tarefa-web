@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 const LINKS = [
   { to: "/", label: "Início" },
   { to: "/catalogo", label: "Catálogo" },
-  { to: "/familia/novo", label: "+ Membro da família" },
+  { to: "/familia", label: "Família" },
 ];
 
 export function NavHeader() {
@@ -13,6 +13,10 @@ export function NavHeader() {
   function sair() {
     localStorage.removeItem("token");
     navigate("/login");
+  }
+
+  function estaAtivo(to: string) {
+    return to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
   }
 
   return (
@@ -29,7 +33,7 @@ export function NavHeader() {
       <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
         <strong style={{ fontSize: 14 }}>Lista de tarefas</strong>
         {LINKS.map((link) => {
-          const ativo = location.pathname === link.to;
+          const ativo = estaAtivo(link.to);
           return (
             <Link
               key={link.to}

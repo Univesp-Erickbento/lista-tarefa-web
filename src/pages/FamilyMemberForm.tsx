@@ -41,7 +41,7 @@ export function FamilyMemberForm() {
       grauParentescoId: grauId,
       podeGerenciarTarefas: podeGerenciar,
     });
-    navigate("/");
+    navigate("/familia");
   }
 
   return (

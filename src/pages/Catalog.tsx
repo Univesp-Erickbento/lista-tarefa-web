@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { estatisticasDoTemplate, listarCatalogo } from "../api/tarefas";
 import { NavHeader } from "../components/NavHeader";
 import { NewTaskTemplateModal } from "../components/NewTaskTemplateModal";
+import { NewTaskModal } from "../components/NewTaskModal";
 import type { TaskTemplate, TemplateUserStats } from "../types";
 
 export function Catalog() {
@@ -9,6 +10,8 @@ export function Catalog() {
   const [expandido, setExpandido] = useState<string | null>(null);
   const [statsPorTemplate, setStatsPorTemplate] = useState<Record<string, TemplateUserStats[]>>({});
   const [modalAberto, setModalAberto] = useState(false);
+  const [templateParaAtribuir, setTemplateParaAtribuir] = useState<TaskTemplate | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
 
   useEffect(() => {
     carregar();
@@ -33,6 +36,7 @@ export function Catalog() {
   function handleCriado(novo: TaskTemplate) {
     setTemplates((prev) => [...prev, novo]);
     setModalAberto(false);
+    setAviso("Catálogo atualizado com sucesso!");
   }
 
   return (
@@ -50,6 +54,21 @@ export function Catalog() {
             + Nova tarefa no catálogo
           </button>
         </div>
+
+        {aviso && (
+          <p
+            style={{
+              fontSize: 13,
+              background: "var(--bg-success)",
+              color: "var(--text-success)",
+              padding: 12,
+              borderRadius: 8,
+              marginBottom: 16,
+            }}
+          >
+            {aviso}
+          </p>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
           {templates.map((template) => {
@@ -73,6 +92,14 @@ export function Catalog() {
                   </div>
                   <span style={{ fontSize: 18, color: "var(--text-muted)" }}>{aberto ? "▲" : "▼"}</span>
                 </div>
+
+                <button
+                  className="btn-secondary"
+                  style={{ fontSize: 12, padding: "5px 12px", marginTop: 10 }}
+                  onClick={() => setTemplateParaAtribuir(template)}
+                >
+                  Atribuir tarefa
+                </button>
 
                 {aberto && (
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
@@ -124,6 +151,21 @@ export function Catalog() {
 
       {modalAberto && (
         <NewTaskTemplateModal onCriado={handleCriado} onCancelar={() => setModalAberto(false)} />
+      )}
+      {templateParaAtribuir && (
+        <NewTaskModal
+          templateIdInicial={templateParaAtribuir.id}
+          onCancelar={() => setTemplateParaAtribuir(null)}
+          onCriada={(task) => {
+            setTemplateParaAtribuir(null);
+            setAviso(
+              `Tarefa "${task.titulo}" atribuída a ${task.assignedTo.nome} para ` +
+                new Date(task.horario).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) +
+                ". Veja na tela Início."
+            );
+            setTimeout(() => setAviso(null), 8000);
+          }}
+        />
       )}
     </div>
   );

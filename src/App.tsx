@@ -6,6 +6,7 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { Dashboard } from "./pages/Dashboard";
 import { Catalog } from "./pages/Catalog";
 import { FamilyMemberForm } from "./pages/FamilyMemberForm";
+import { Family } from "./pages/Family";
 
 function RotaProtegida({ children }: { children: React.ReactNode }) {
   const autenticado = Boolean(localStorage.getItem("token"));
@@ -33,6 +34,14 @@ export default function App() {
           element={
             <RotaProtegida>
               <Catalog />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/familia"
+          element={
+            <RotaProtegida>
+              <Family />
             </RotaProtegida>
           }
         />

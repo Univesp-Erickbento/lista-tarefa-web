@@ -4,6 +4,7 @@ import { TaskCard } from "../components/TaskCard";
 import { EvaluateModal } from "../components/EvaluateModal";
 import { RankingPanel } from "../components/RankingPanel";
 import { NavHeader } from "../components/NavHeader";
+import { NewTaskModal } from "../components/NewTaskModal";
 import type { Avaliacao, RankingEntry, Task } from "../types";
 
 export function Dashboard() {
@@ -11,6 +12,9 @@ export function Dashboard() {
   const [rankingEntries, setRankingEntries] = useState<RankingEntry[]>([]);
   const [tarefaSelecionada, setTarefaSelecionada] = useState<Task | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [criandoTarefa, setCriandoTarefa] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
     carregar();
@@ -18,20 +22,37 @@ export function Dashboard() {
 
   async function carregar() {
     setCarregando(true);
-    const hoje = new Date().toISOString().slice(0, 10);
-    const [tarefasDoDia, rankingDaSemana] = await Promise.all([
-      listarTarefas({ data: hoje }),
-      ranking("semana"),
-    ]);
-    setTasks(tarefasDoDia);
-    setRankingEntries(rankingDaSemana);
-    setCarregando(false);
+    setErro(null);
+    try {
+      const hoje = new Date().toISOString().slice(0, 10);
+      const [tarefasDoDia, rankingDaSemana] = await Promise.all([
+        listarTarefas({ data: hoje }),
+        ranking("semana"),
+      ]);
+      setTasks(tarefasDoDia);
+      setRankingEntries(rankingDaSemana);
+    } catch {
+      setErro("Não foi possível carregar as tarefas. Verifique se o backend está rodando.");
+    } finally {
+      setCarregando(false);
+    }
   }
 
   async function confirmarAvaliacao(avaliacao: Avaliacao) {
     if (!tarefaSelecionada) return;
     await avaliarTarefa(tarefaSelecionada.id, avaliacao);
     setTarefaSelecionada(null);
+    await carregar();
+  }
+
+  async function aoCriarTarefa(task: Task) {
+    setCriandoTarefa(false);
+    setAviso(
+      `Tarefa "${task.titulo}" atribuída a ${task.assignedTo.nome} para ` +
+        new Date(task.horario).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) +
+        "."
+    );
+    setTimeout(() => setAviso(null), 8000);
     await carregar();
   }
 
@@ -44,12 +65,34 @@ export function Dashboard() {
     <div>
       <NavHeader />
       <div className="container">
-        <div style={{ marginBottom: 24 }}>
-          <h1>Lista de tarefas</h1>
-          <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>
-            {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
-          </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <div>
+            <h1>Lista de tarefas</h1>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>
+              {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
+          </div>
+          <button className="btn-primary" onClick={() => setCriandoTarefa(true)}>
+            + Nova tarefa
+          </button>
         </div>
+
+        {aviso && (
+          <p
+            style={{
+              fontSize: 13,
+              background: "var(--bg-success)",
+              color: "var(--text-success)",
+              padding: 12,
+              borderRadius: 8,
+              marginBottom: 16,
+            }}
+          >
+            {aviso}
+          </p>
+        )}
+
+        {erro && <p style={{ fontSize: 13, color: "var(--text-danger)", marginBottom: 16 }}>{erro}</p>}
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
           <div className="card">
@@ -78,7 +121,7 @@ export function Dashboard() {
               {tasks.map((task) => (
                 <TaskCard key={task.id} task={task} onAvaliar={setTarefaSelecionada} />
               ))}
-              {!carregando && tasks.length === 0 && (
+              {!carregando && !erro && tasks.length === 0 && (
                 <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>Nenhuma tarefa para hoje ainda.</p>
               )}
             </div>
@@ -102,6 +145,8 @@ export function Dashboard() {
           onCancelar={() => setTarefaSelecionada(null)}
         />
       )}
+
+      {criandoTarefa && <NewTaskModal onCriada={aoCriarTarefa} onCancelar={() => setCriandoTarefa(false)} />}
     </div>
   );
 }

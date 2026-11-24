@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { Task, TaskTemplate, TemplateUserStats, RankingEntry, Avaliacao, User } from "../types";
+import type { Task, TaskTemplate, TemplateUserStats, RankingEntry, Avaliacao, User, Family } from "../types";
 
 
 export async function solicitarLinkDeSenha(email: string): Promise<{ mensagem: string }> {
@@ -109,5 +109,10 @@ export async function cadastrar(
   senha: string
 ): Promise<{ token: string; user: any }> {
   const { data } = await api.post("/auth/cadastro", { nome, email, senha });
+  return data;
+}
+
+export async function listarFamilias(): Promise<Family[]> {
+  const { data } = await api.get("/families");
   return data;
 }

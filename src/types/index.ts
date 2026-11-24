@@ -16,6 +16,12 @@ export interface User {
   podeGerenciarTarefas: boolean;
 }
 
+export interface Family {
+  id: string;
+  nome: string;
+  membros: User[];
+}
+
 export type TaskStatus = "PENDENTE" | "EM_ANDAMENTO" | "CONCLUIDA" | "ATRASADA";
 
 export type Avaliacao = "EXCELENTE" | "BOM" | "REGULAR" | "INSUFICIENTE";
