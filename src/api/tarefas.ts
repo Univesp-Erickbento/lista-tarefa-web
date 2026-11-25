@@ -19,7 +19,7 @@ export async function login(email: string, senha: string): Promise<{ token: stri
 }
 
 // ---- Tarefas do dia ----
-export async function listarTarefas(params?: { data?: string; status?: string }): Promise<Task[]> {
+export async function listarTarefas(params?: { data?: string; status?: string; assignedTo?: string }): Promise<Task[]> {
   const { data } = await api.get("/tasks", { params });
   return data;
 }

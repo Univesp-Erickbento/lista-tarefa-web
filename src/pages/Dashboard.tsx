@@ -15,6 +15,7 @@ export function Dashboard() {
   const [criandoTarefa, setCriandoTarefa] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [tarefasAtribuidas, setTarefasAtribuidas] = useState<Task[]>([]);
 
   useEffect(() => {
     carregar();
@@ -25,11 +26,13 @@ export function Dashboard() {
     setErro(null);
     try {
       const hoje = new Date().toISOString().slice(0, 10);
-      const [tarefasDoDia, rankingDaSemana] = await Promise.all([
+      const [tarefasDoDia, todasAsTarefas, rankingDaSemana] = await Promise.all([
         listarTarefas({ data: hoje }),
+        listarTarefas(),
         ranking("semana"),
       ]);
       setTasks(tarefasDoDia);
+      setTarefasAtribuidas(todasAsTarefas);
       setRankingEntries(rankingDaSemana);
     } catch {
       setErro("Não foi possível carregar as tarefas. Verifique se o backend está rodando.");
@@ -60,6 +63,21 @@ export function Dashboard() {
   const atrasadas = tasks.filter((t) => t.status === "ATRASADA").length;
   const aguardandoAvaliacao = tasks.filter((t) => t.status === "CONCLUIDA" && !t.avaliacao).length;
   const pontosHoje = tasks.reduce((soma, t) => soma + (t.pontosGanhos ?? 0), 0);
+
+  const tarefasPorMembro = Array.from(
+    tarefasAtribuidas.reduce((grupos, task) => {
+      const chave = task.assignedTo.id;
+      const atual = grupos.get(chave) ?? { membro: task.assignedTo, tarefas: [] as Task[] };
+      atual.tarefas.push(task);
+      grupos.set(chave, atual);
+      return grupos;
+    }, new Map<string, { membro: Task["assignedTo"]; tarefas: Task[] }>())
+  ).map(([, grupo]) => ({
+    ...grupo,
+    tarefas: [...grupo.tarefas].sort(
+      (a, b) => new Date(a.horario).getTime() - new Date(b.horario).getTime()
+    ),
+  }));
 
   return (
     <div>
@@ -135,6 +153,24 @@ export function Dashboard() {
             )}
             <RankingPanel entradas={rankingEntries} />
           </div>
+        </div>
+
+        <div>
+          <h3>Tarefas por membro da família</h3>
+          {carregando && <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>Carregando...</p>}
+          {tarefasPorMembro.map((grupo) => (
+            <div key={grupo.membro.id} style={{ marginBottom: 24 }}>
+              <h4 style={{ fontSize: 18, margin: "8px 0" }}>{grupo.membro.nome}</h4>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {grupo.tarefas.map((task) => (
+                  <TaskCard key={task.id} task={task} onAvaliar={setTarefaSelecionada} />
+                ))}
+              </div>
+            </div>
+          ))}
+          {!carregando && !erro && tarefasPorMembro.length === 0 && (
+            <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>Nenhuma tarefa atribuída ainda.</p>
+          )}
         </div>
       </div>
 

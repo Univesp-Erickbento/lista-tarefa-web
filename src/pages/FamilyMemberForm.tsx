@@ -21,10 +21,14 @@ export function FamilyMemberForm() {
   const [email, setEmail] = useState("");
   const [grauId, setGrauId] = useState<number | "">("");
   const [podeGerenciar, setPodeGerenciar] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    listarGrausParentesco().then(setGraus);
+    listarGrausParentesco()
+      .then(setGraus)
+      .catch(() => setErro("Não foi possível carregar os graus de parentesco."));
   }, []);
 
   const grausPorCategoria = graus.reduce<Record<string, Grau[]>>((acc, g) => {
@@ -35,13 +39,21 @@ export function FamilyMemberForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (grauId === "") return;
-    await adicionarMembroFamilia({
-      nome,
-      email: email || undefined,
-      grauParentescoId: grauId,
-      podeGerenciarTarefas: podeGerenciar,
-    });
-    navigate("/familia");
+    setErro(null);
+    setEnviando(true);
+    try {
+      await adicionarMembroFamilia({
+        nome,
+        email: email || undefined,
+        grauParentescoId: grauId,
+        podeGerenciarTarefas: podeGerenciar,
+      });
+      navigate("/familia");
+    } catch (err: any) {
+      setErro(err?.response?.data?.mensagem ?? "Não foi possível adicionar o membro. Tente novamente.");
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -89,8 +101,10 @@ export function FamilyMemberForm() {
             </select>
           </div>
 
-          <button type="submit" className="btn-primary">
-            Adicionar à família
+          {erro && <p style={{ color: "var(--text-danger)", fontSize: 13 }}>{erro}</p>}
+
+          <button type="submit" className="btn-primary" disabled={enviando}>
+            {enviando ? "Adicionando..." : "Adicionar à família"}
           </button>
         </form>
       </div>
