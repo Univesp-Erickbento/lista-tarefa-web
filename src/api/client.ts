@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const apiUrlPadrao = `${window.location.protocol}//${window.location.hostname}:8080`;
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8080",
+  // Em rede local, usa o IP/hostname acessado pelo navegador em vez de
+  // sempre apontar para localhost, que seria o computador do usuário.
+  baseURL: import.meta.env.VITE_API_URL || apiUrlPadrao,
 });
 
 // Injeta o token salvo no login em toda requisição

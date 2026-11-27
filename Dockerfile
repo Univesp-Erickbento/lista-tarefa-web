@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN echo '/// <reference types="vite/client" />' > src/vite-env.d.ts
-ARG VITE_API_URL=http://localhost:8080
+ARG VITE_API_URL=
 ENV VITE_API_URL=$VITE_API_URL
 RUN npx vite build
 
