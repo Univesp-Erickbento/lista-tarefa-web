@@ -12,6 +12,7 @@ export function NavHeader() {
 
   function sair() {
     localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
     navigate("/login");
   }
 

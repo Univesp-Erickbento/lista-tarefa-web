@@ -5,7 +5,16 @@ import { EvaluateModal } from "../components/EvaluateModal";
 import { RankingPanel } from "../components/RankingPanel";
 import { NavHeader } from "../components/NavHeader";
 import { NewTaskModal } from "../components/NewTaskModal";
-import type { Avaliacao, RankingEntry, Task } from "../types";
+import type { Avaliacao, RankingEntry, Task, User } from "../types";
+
+function usuarioLogado(): User | null {
+  try {
+    const usuario = localStorage.getItem("usuario");
+    return usuario ? JSON.parse(usuario) : null;
+  } catch {
+    return null;
+  }
+}
 
 export function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -58,6 +67,11 @@ export function Dashboard() {
     setTimeout(() => setAviso(null), 8000);
     await carregar();
   }
+
+  const usuarioAtual = usuarioLogado();
+  const minhasTarefas = usuarioAtual
+    ? tarefasAtribuidas.filter((task) => task.assignedTo.id === usuarioAtual.id)
+    : [];
 
   const concluidas = tasks.filter((t) => t.status === "CONCLUIDA").length;
   const atrasadas = tasks.filter((t) => t.status === "ATRASADA").length;
@@ -154,6 +168,23 @@ export function Dashboard() {
             <RankingPanel entradas={rankingEntries} />
           </div>
         </div>
+
+        {usuarioAtual && (
+          <div className="card" style={{ marginBottom: 16 }}>
+            <h3 style={{ margin: "0 0 12px" }}>Minhas tarefas</h3>
+            {minhasTarefas.length === 0 ? (
+              <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>
+                Nenhuma tarefa atribuída a {usuarioAtual.nome} ainda.
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {minhasTarefas.map((task) => (
+                  <TaskCard key={task.id} task={task} onAvaliar={setTarefaSelecionada} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div>
           <h3>Tarefas por membro da família</h3>

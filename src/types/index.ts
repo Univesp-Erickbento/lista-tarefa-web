@@ -19,7 +19,11 @@ export interface User {
 export interface Family {
   id: string;
   nome: string;
-  membros: User[];
+  endereco?: string;
+  codigoConvite: string;
+  tipo: "PRINCIPAL" | "RAMO";
+  parentFamilyId?: string;
+  createdAt: string;
 }
 
 export type TaskStatus = "PENDENTE" | "EM_ANDAMENTO" | "CONCLUIDA" | "ATRASADA";

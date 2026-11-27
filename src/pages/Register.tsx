@@ -7,6 +7,8 @@ export function Register() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmacao, setConfirmacao] = useState("");
+  const [nomeFamilia, setNomeFamilia] = useState("");
+  const [endereco, setEndereco] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const navigate = useNavigate();
@@ -26,8 +28,9 @@ export function Register() {
 
     setEnviando(true);
     try {
-      const { token } = await cadastrar(nome, email, senha);
+      const { token, user } = await cadastrar(nome, email, senha, nomeFamilia, endereco);
       localStorage.setItem("token", token);
+      localStorage.setItem("usuario", JSON.stringify(user));
       navigate("/");
     } catch (err: any) {
       setErro(err?.response?.data?.mensagem ?? "Não foi possível criar a conta. Tente novamente.");
@@ -44,6 +47,14 @@ export function Register() {
       </p>
 
       <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label>Nome da família</label>
+          <input value={nomeFamilia} onChange={(e) => setNomeFamilia(e.target.value)} required placeholder="Ex.: Família Bento" />
+        </div>
+        <div className="field">
+          <label>Endereço (opcional)</label>
+          <input value={endereco} onChange={(e) => setEndereco(e.target.value)} placeholder="Rua, número, bairro" />
+        </div>
         <div className="field">
           <label>Seu nome</label>
           <input value={nome} onChange={(e) => setNome(e.target.value)} required />

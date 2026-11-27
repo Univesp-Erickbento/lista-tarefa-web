@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { listarFamilia } from "../api/tarefas";
+import { criarRamoFamilia, listarFamilia, listarFamilias } from "../api/tarefas";
 import { NavHeader } from "../components/NavHeader";
 import { NewTaskModal } from "../components/NewTaskModal";
-import type { User } from "../types";
+import type { Family as FamilyType, User } from "../types";
 
 export function Family() {
   const [membros, setMembros] = useState<User[]>([]);
@@ -11,13 +11,34 @@ export function Family() {
   const [erro, setErro] = useState<string | null>(null);
   const [atribuirA, setAtribuirA] = useState<User | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [familias, setFamilias] = useState<FamilyType[]>([]);
+  const [novoRamoAberto, setNovoRamoAberto] = useState(false);
+  const [nomeRamo, setNomeRamo] = useState("");
+  const [enderecoRamo, setEnderecoRamo] = useState("");
 
   useEffect(() => {
-    listarFamilia()
-      .then(setMembros)
+    Promise.all([listarFamilia(), listarFamilias()])
+      .then(([membrosDaFamilia, familiasDaConta]) => {
+        setMembros(membrosDaFamilia);
+        setFamilias(familiasDaConta);
+      })
       .catch(() => setErro("Não foi possível carregar a família. Verifique se o backend está rodando."))
       .finally(() => setCarregando(false));
   }, []);
+
+  async function criarRamo() {
+    if (!nomeRamo.trim()) return;
+    try {
+      const ramo = await criarRamoFamilia({ nome: nomeRamo.trim(), endereco: enderecoRamo.trim() || undefined });
+      setFamilias((atuais) => [...atuais, ramo]);
+      setNomeRamo("");
+      setEnderecoRamo("");
+      setNovoRamoAberto(false);
+      setAviso(`Ramo "${ramo.nome}" criado com o código ${ramo.codigoConvite}.`);
+    } catch (err: any) {
+      setErro(err?.response?.data?.mensagem ?? "Não foi possível criar o ramo.");
+    }
+  }
 
   return (
     <div>
@@ -89,6 +110,55 @@ export function Family() {
             <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>Nenhum membro cadastrado ainda.</p>
           )}
         </div>
+
+        {familias.length > 0 && (
+          <div className="card" style={{ marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <h3 style={{ margin: 0 }}>Famílias e ramos</h3>
+              <button className="btn-secondary" style={{ fontSize: 12 }} onClick={() => setNovoRamoAberto(true)}>
+                + Novo ramo
+              </button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {familias.map((familia) => (
+                <div key={familia.id} className="row-card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <strong style={{ fontSize: 14 }}>{familia.nome}</strong>
+                    <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--text-secondary)" }}>
+                      {familia.tipo === "PRINCIPAL" ? "Família principal" : "Ramo"}
+                      {familia.endereco ? ` · ${familia.endereco}` : ""}
+                    </p>
+                  </div>
+                  <span className="badge" style={{ background: "var(--bg-accent)", color: "var(--text-accent)" }}>
+                    {familia.codigoConvite}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {novoRamoAberto && (
+          <div className="card" style={{ marginBottom: 16 }}>
+            <h3 style={{ marginTop: 0 }}>Novo ramo da família</h3>
+            <div className="field">
+              <label>Nome do ramo</label>
+              <input value={nomeRamo} onChange={(event) => setNomeRamo(event.target.value)} placeholder="Ex.: Família do Pai" />
+            </div>
+            <div className="field">
+              <label>Endereço (opcional)</label>
+              <input value={enderecoRamo} onChange={(event) => setEnderecoRamo(event.target.value)} />
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="btn-secondary" onClick={() => setNovoRamoAberto(false)}>
+                Cancelar
+              </button>
+              <button className="btn-primary" onClick={criarRamo}>
+                Criar ramo
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {atribuirA && (

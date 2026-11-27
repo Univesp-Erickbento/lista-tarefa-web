@@ -106,13 +106,20 @@ export async function listarGrausParentesco(): Promise<
 export async function cadastrar(
   nome: string,
   email: string,
-  senha: string
+  senha: string,
+  nomeFamilia: string,
+  endereco?: string
 ): Promise<{ token: string; user: any }> {
-  const { data } = await api.post("/auth/cadastro", { nome, email, senha });
+  const { data } = await api.post("/auth/cadastro", { nome, email, senha, nomeFamilia, endereco });
   return data;
 }
 
 export async function listarFamilias(): Promise<Family[]> {
   const { data } = await api.get("/families");
+  return data;
+}
+
+export async function criarRamoFamilia(payload: { nome: string; endereco?: string }): Promise<Family> {
+  const { data } = await api.post("/families", payload);
   return data;
 }

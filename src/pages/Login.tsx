@@ -12,8 +12,9 @@ export function Login() {
     e.preventDefault();
     setErro(null);
     try {
-      const { token } = await login(email, senha);
+      const { token, user } = await login(email, senha);
       localStorage.setItem("token", token);
+      localStorage.setItem("usuario", JSON.stringify(user));
       navigate("/");
     } catch {
       setErro("E-mail ou senha inválidos.");
